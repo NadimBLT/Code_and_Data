@@ -62,16 +62,16 @@ for(n in 1:length(ntrain)){
               res$Lasso=mod}
          }
           
-          plot(res$Onestep$lambda[30:100], res$Onestep$cvm[30:100], log="x")
-          plot(res$Onestep$lambda[30:100], res$Onestep$nested.cvm[30:100], log="x")  
-          
-          plot(res$Onestep$lambda, res$Onestep$cvm, log="x")
-          plot(res$Onestep$lambda, res$Onestep$nested.cvm, log="x")  
-          
-          
-          cbind(beta, res$Lasso$glmnet.fit$beta[, which(res$Lasso$lambda == res$Lasso$lambda.min)], res$Onestep$glmnet.fit$beta[, which(res$Onestep$lambda == res$Onestep$lambda.min)], 
-                res$Onestep$glmnet.fit$beta[, which(res$Onestep$lambda == res$Onestep$nested.lambda.min)])
-          
+          # plot(res$Onestep$lambda[30:100], res$Onestep$cvm[30:100], log="x")
+          # plot(res$Onestep$lambda[30:100], res$Onestep$nested.cvm[30:100], log="x")  
+          # 
+          # plot(res$Onestep$lambda, res$Onestep$cvm, log="x")
+          # plot(res$Onestep$lambda, res$Onestep$nested.cvm, log="x")  
+          # 
+          # 
+          # cbind(beta, res$Lasso$glmnet.fit$beta[, which(res$Lasso$lambda == res$Lasso$lambda.min)], res$Onestep$glmnet.fit$beta[, which(res$Onestep$lambda == res$Onestep$lambda.min)], 
+          #       res$Onestep$glmnet.fit$beta[, which(res$Onestep$lambda == res$Onestep$nested.lambda.min)])
+          # 
           
         res$train$x=xtrain
         res$train$y=ytrain
