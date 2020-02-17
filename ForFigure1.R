@@ -26,7 +26,7 @@ code.meth=rbind(c(FALSE,rep(TRUE,3)),c(NA,1,0,99))
 colnames(code.meth)=c("Lasso","Onestep","Adlasso.ridge","Adlasso.mco")
 rownames(code.meth)=c("adap","alpha.weights")
 
-ntrain = 1000; p=100; s0=10; signal = 0.5
+ntrain = 1000; p=1000; s0=10; signal = 0.5
 res=list()
 
 ntot=ntrain + ntest
@@ -86,13 +86,13 @@ colnames(RECAP_PREDS) <- c("Lambda", "PredError", "Type", "Method")
 RECAP_PREDS$Lambda <- as.numeric(as.character(RECAP_PREDS$Lambda))
 RECAP_PREDS$PredError <- as.numeric(as.character(RECAP_PREDS$PredError))
 
-levels(RECAP_PREDS$Method) = c("OLS-AdaLasso", "Ridge-AdaLasso", "Lasso", "1-step-Lasso")
-RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(3, 4, 1, 2)])
-ggplot(data=RECAP_PREDS, aes(x=Lambda, y=PredError, colour=Type)) + geom_line() + 
+levels(RECAP_PREDS$Method) = c("Ridge-AdaLasso", "Lasso", "1-step-Lasso") #"OLS-AdaLasso", 
+RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(2, 3, 1)]) #[c(3, 4, 1, 2)]
+ggplot(data=RECAP_PREDS , aes(x=Lambda, y=PredError, colour=Type)) + geom_line() +  #%>% filter(Method != "Ridge-AdaLasso")
   facet_wrap(~Method, ncol=4, scales="free_x") + scale_x_log10() + ylim(0.95*min(RECAP_PREDS$PredError), 2) + 
   theme(legend.position = "bottom", legend.title = element_blank(), axis.title.y = element_blank())
 
-ggsave(file="ForFig1.png", width=10, height = 4, units="in", dpi=300)
+ggsave(file="ForFig1.png", width=6, height = 3.5, units="in", dpi=300)
 
 
 
