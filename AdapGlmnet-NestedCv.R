@@ -22,6 +22,8 @@ adap.glmnet <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=N
       modstep2 = nested.cvglmnet(penalty.factor=Weights,nested.cv=adap,alpha.weights=alpha.weights,eps=eps,nested.foldid=nested.foldid,x=x,y=y,family=family)
       
     }else{# weights derived from glmnet, with alpha set to alpha.weights (1: Lasso-> one-step Lasso; 0: ridge -> Ridge-AdaLasso)
+      # in modstep1 below, you forgot to add the alpha.weights... so these weights were always computed with the Lasso, ...
+      # that may explain the issues you observed for the Ridge-AdaLasso...
       
       #modstep1 = nested.cvglmnet(penalty.factor=rep(1,ncol(x)), nested.cv=!adap, nested.foldid=nested.foldid,x=x,y=y,family=family)
       #Weights=1/(abs(modstep1$glmnet.fit$beta[,which(modstep1$glmnet.fit$lambda==modstep1$lambda.min)])+eps)
