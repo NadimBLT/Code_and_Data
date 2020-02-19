@@ -92,7 +92,7 @@ ggplot(data=RECAP_PREDS , aes(x=Lambda, y=PredError, colour=Type)) + geom_line()
   facet_wrap(~Method, ncol=4, scales="free") + scale_x_log10() + #ylim(0.95*min(RECAP_PREDS$PredError), 2) + 
   theme(legend.position = "bottom", legend.title = element_blank(), axis.title.y = element_blank())
 
-ggsave(file="ForFig1.png", width=6, height = 3.5, units="in", dpi=300)
+ggsave(file="FIGs/ForFig1.png", width=6, height = 3.5, units="in", dpi=300)
 
 
 

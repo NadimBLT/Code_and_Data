@@ -3,7 +3,7 @@ library(glmnet)
 library(parallel)
 library(here)
 
-setwd("~")
+#setwd("~")
 
 source("AdapGlmnet-NestedCv.R")
 
@@ -23,12 +23,12 @@ Eval <- function(beta.star,beta.hat,intercept.hat,x,y){
 
 #settings
 
-vsim    = 1:5
+vsim    = 1:50
 vp      = c(100,500,1000)
-vsignal = c(0.25,0.5,1,2)
+vsignal = c(0.25,0.5,1,1.5)
 vs0     = c(10, 50)
 eps     = 1e-4
-ntrain  = c(1000,2000)
+ntrain  = c(1000)
 ntest   = ntrain*10
 
 
@@ -118,13 +118,13 @@ for(n in 1:length(ntrain)){
         
         }
         
-       Res=mclapply(vsim,FUN = funparall,mc.cores = 10)
+       Res=mclapply(vsim,FUN = funparall,mc.cores = 50)
        
        Table <- NULL
        for(i in 1:length(vsim)){Table=rbind(Table,Res[[i]])}
         
        #back up: record a table for each combination of p*s0*n*signal
-        save(Table,file = paste0("ntrain-",ntrain[n],"-ntest-",ntest[n],"-nvar-",p,"-sparsity-",s0,"-signal-",signal,"AllSim.RData"))
+        save(Table,file = paste0("RES/ntrain-",ntrain[n],"-ntest-",ntest[n],"-nvar-",p,"-sparsity-",s0,"-signal-",signal,"AllSim.RData"))
        
        TableALL=rbind(TableALL,Table)
       }
@@ -132,5 +132,5 @@ for(n in 1:length(ntrain)){
   }
 }
 
-save(TableALL,file = "TableALL.Rdata")
+save(TableALL,file = "RES/TableALL.Rdata")
 
