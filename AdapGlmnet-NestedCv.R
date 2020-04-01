@@ -10,7 +10,7 @@
 adap.glmnet <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=NULL, nfolds=10, family="gaussian", penalty.factor=rep(1,ncol(x))){
   
   if (adap==FALSE) {# standard Lasso
-    modstep1=nested.cvglmnet(nested.cv=adap,nested.foldid=nested.foldid,x=x,y=y,family=family,penalty.factor=penalty.factor)
+    modstep1=nested.cvglmnet(nested.cv=adap,alpha.weights=1,nested.foldid=nested.foldid,x=x,y=y,family=family,penalty.factor=penalty.factor)
     return(modstep1) 
   }else{# Adaptive Lasso
     
@@ -22,13 +22,16 @@ adap.glmnet <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=N
       modstep2 = nested.cvglmnet(penalty.factor=Weights,nested.cv=adap,alpha.weights=alpha.weights,eps=eps,nested.foldid=nested.foldid,x=x,y=y,family=family)
       
     }else{# weights derived from glmnet, with alpha set to alpha.weights (1: Lasso-> one-step Lasso; 0: ridge -> Ridge-AdaLasso)
-      # in modstep1 below, you forgot to add the alpha.weights... so these weights were always computed with the Lasso, ...
-      # that may explain the issues you observed for the Ridge-AdaLasso...
+   
+    # Here adap=TRUE so the function "nested.cvglmnet" with nested.cv=!adap (FALSE)  = the function "cv.glmnet" + calculation of the lambda sequence in a previous step
+      # I modified the first line in nested.cvglmnet (for nested.cv = FALSE) so that we can use this function as standard cv.glmnet in the case nested.cv = FALSE.
+      # I just replaced alpha = 1 by alpha = ifelse(nested.cv,1,alpha.weights) in the first line
       
-      #modstep1 = nested.cvglmnet(penalty.factor=rep(1,ncol(x)), nested.cv=!adap, nested.foldid=nested.foldid,x=x,y=y,family=family)
-      #Weights=1/(abs(modstep1$glmnet.fit$beta[,which(modstep1$glmnet.fit$lambda==modstep1$lambda.min)])+eps)
-      modstep1 = cv.glmnet(x=x,y=y,family=family, alpha = alpha.weights, penalty.factor=rep(1,ncol(x)), nfold=ifelse(is.null(nested.foldid), nfolds, max(nested.foldid)))
+      modstep1 = nested.cvglmnet(nested.cv=!adap, x=x,y=y,family=family, alpha = alpha.weights,penalty.factor=rep(1,ncol(x)), nested.foldid=nested.foldid)
       Weights=1/(abs( coef(modstep1, s= modstep1$lambda.min)[-1]) + eps)
+     
+      #modstep1 = cv.glmnet(x=x,y=y,family=family, alpha = alpha.weights, penalty.factor=rep(1,ncol(x)), nfold=ifelse(is.null(nested.foldid), nfolds, max(nested.foldid)))
+      #Weights=1/(abs( coef(modstep1, s= modstep1$lambda.min)[-1]) + eps)
       
       
       
@@ -48,10 +51,13 @@ adap.glmnet <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=N
 nested.cvglmnet <- function(nested.cv=FALSE, alpha.weights=1, eps=0, nested.foldid=NULL, x, y, family="gaussian", penalty.factor=rep(1,ncol(x)), nfolds=10){
   
   # creation of the fold id for the cross-validation
-  if(is.null(nested.foldid)){nested.foldid=sample(rep_len(1:nfolds,length(y)))}
+  if(is.null(nested.foldid)){nested.foldid=rep_len(1:nfolds,length(y))} # for randomize: sample(rep_len(1:nfolds,length(y)))
+  
+  # calculation of the lambda sequence
+  lambda.seq = glmnet(x=x, y=y, family=family, penalty.factor=penalty.factor, alpha = ifelse(nested.cv,1,alpha.weights))
   
   # first CV (the only one that is usually applied)
-  mod = cv.glmnet(x=x, y=y, family=family, penalty.factor=penalty.factor, foldid=nested.foldid, alpha = 1)
+  mod =     cv.glmnet(x=x, y=y, family=family, penalty.factor=penalty.factor, alpha = ifelse(nested.cv,1,alpha.weights), lambda=lambda.seq$lambda, foldid=nested.foldid)
   
   
   if (nested.cv==TRUE) {# second, "nested"-CV
@@ -71,8 +77,10 @@ nested.cvglmnet <- function(nested.cv=FALSE, alpha.weights=1, eps=0, nested.fold
         
       }else{ # glmnet fit for the weights, with alpha set to alpha.weights
         
-        mod.fold = cv.glmnet(x=x[-nested.fold,], y=y[-nested.fold], family=family, alpha = alpha.weights, penalty.factor=rep(1,ncol(x)))
-        #Weights=1/(abs(mod.fold$glmnet.fit$beta[,which(mod.fold$glmnet.fit$lambda==mod.fold$lambda.min)])+eps)
+        # for the consistency of the code, here too, calculation of the lambda sequence
+        lambda.seq.fold = glmnet(x=x[-nested.fold,], y=y[-nested.fold], family=family, alpha = alpha.weights, penalty.factor=rep(1,ncol(x)))
+       
+        mod.fold =     cv.glmnet(x=x[-nested.fold,], y=y[-nested.fold], family=family, alpha = alpha.weights, penalty.factor=rep(1,ncol(x)),lambda=lambda.seq.fold$lambda)
         Weights= 1/(abs( coef(mod.fold, s= mod.fold$lambda.min)[-1]) + eps)
         
       }
