@@ -85,14 +85,19 @@ RECAP_PREDS <- data.frame(RECAP_PREDS)
 colnames(RECAP_PREDS) <- c("Lambda", "PredError", "Type", "Method")
 RECAP_PREDS$Lambda <- as.numeric(as.character(RECAP_PREDS$Lambda))
 RECAP_PREDS$PredError <- as.numeric(as.character(RECAP_PREDS$PredError))
-
-levels(RECAP_PREDS$Method) = c("Ridge-AdaLasso", "Lasso", "1-step-Lasso") #"OLS-AdaLasso", 
+levels(RECAP_PREDS$Method) = c("Ridge-AdaLasso", "Lasso", "1-step-Laaasso") #"OLS-AdaLasso", 
 RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(2, 3, 1)]) #[c(3, 4, 1, 2)]
+
+
+DataMins    <- RECAP_PREDS %>% group_by(Method, Type) %>% summarise( LambdaMin=Lambda[which.min(PredError)])
+
+
 ggplot(data=RECAP_PREDS , aes(x=Lambda, y=PredError, colour=Type)) + geom_line() +  #%>% filter(Method != "Ridge-AdaLasso")
   facet_wrap(~Method, ncol=4, scales="free") + scale_x_log10() + #ylim(0.95*min(RECAP_PREDS$PredError), 2) + 
-  theme(legend.position = "bottom", legend.title = element_blank(), axis.title.y = element_blank())
+  theme(legend.position = "bottom", legend.title = element_blank(), axis.title.y = element_blank()) + 
+  geom_vline(data=DataMins, aes(xintercept=LambdaMin, colour=Type),linetype="dotted")
 
-ggsave(file="FIGs/ForFig1.png", width=6, height = 3.5, units="in", dpi=300)
+ggsave(file="FIGs/ForFig1_new.png", width=6, height = 3.5, units="in", dpi=300)
 
 
 
