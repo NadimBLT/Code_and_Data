@@ -1,4 +1,4 @@
-load("TableALL-NewTest-5-simulations.Rdata")
+load("RES/RES/TableALL.Rdata")
 View(TableALL)
 
 TableALLP=rbind(as.matrix(cbind(TableALL[,-1],"PredError")),as.matrix(cbind(TableALL[,-2],"Accuracy")))
@@ -45,14 +45,14 @@ Inf_95 <- function(x){return(mean(x)-1.96*sd(x)/sqrt(length(x)))}
 Sup_95 <- function(x){return(mean(x)+1.96*sd(x)/sqrt(length(x)))}
 
 
-
-ggplot(data = TableALLP[-which(TableALLP$Method=="Ridge.AdaLasso"),],mapping = aes(signal,Value,color=Approach,group=Approach))+
+#[-which(TableALLP$Method=="Ridge.AdaLasso"),] # Col[-c(5,6)]
+ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach))+
   stat_summary(fun.y="mean",geom = "line",size=0.5,linetype = 1) +
   stat_summary(fun.y="mean",geom = "point",size=1.5) +
   stat_summary(fun.y="Inf_95",geom = "line",alpha=0.9,linetype=2,size=0.25) +
   stat_summary(fun.y="Sup_95",geom = "line",alpha=0.9,linetype=2,size=0.25) +
-  facet_grid(n*Criterion ~  s0*p   ,scales = "free", labeller = "label_both")+
-  scale_color_manual(values = Col[-c(5,6)],name=" ")+
+  facet_grid(Criterion ~  p*s0   ,scales = "free", labeller = "label_both")+
+  scale_color_manual(values = Col,name=" ")+
   # scale_y_continuous(name="Mesure") + 
   #scale_x_continuous(breaks = c(0.25,0.5,0.75)) + 
   guides(linetype = guide_legend(order = 1), color = guide_legend(order = 2))+
@@ -69,4 +69,4 @@ ggplot(data = TableALLP[-which(TableALLP$Method=="Ridge.AdaLasso"),],mapping = a
          panel.background = element_rect(fill = "white",color = "grey50", size = 0.1),
          strip.background = element_rect(colour = "grey50", fill = "white",size = 0.1)) 
 
-
+ggsave(file=paste0("RES/ResSimul-", format(Sys.time(), "%Y-%m-%d"), ".pdf"), height=4.5, width=8, unit="in", dpi=300)
