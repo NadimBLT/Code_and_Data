@@ -69,4 +69,4 @@ ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach
          panel.background = element_rect(fill = "white",color = "grey50", size = 0.1),
          strip.background = element_rect(colour = "grey50", fill = "white",size = 0.1)) 
 
-ggsave(file=paste0("RES/ResSimul-", format(Sys.time(), "%Y-%m-%d"), ".pdf"), height=4.5, width=8, unit="in", dpi=300)
+ggsave(file=paste0("FIGs/ResSimul-", format(Sys.time(), "%Y-%m-%d"), ".pdf"), height=4.5, width=8, unit="in", dpi=300)

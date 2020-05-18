@@ -64,6 +64,7 @@ RECAP_PREDS <- NULL
 for (nam in names(res))
 {
   lamtemp = res[[nam]]$lambda
+  lamtemp = lamtemp/max(lamtemp)
   cvmtemp = res[[nam]]$cvm
   RECAP_PREDS <- rbind(RECAP_PREDS, cbind(lamtemp, cvmtemp, rep("CV", length(lamtemp)), rep(nam, length(lamtemp))))
   if (nam !='Lasso')
@@ -82,22 +83,37 @@ for (nam in names(res))
 }
 
 RECAP_PREDS <- data.frame(RECAP_PREDS)
-colnames(RECAP_PREDS) <- c("Lambda", "PredError", "Type", "Method")
-RECAP_PREDS$Lambda <- as.numeric(as.character(RECAP_PREDS$Lambda))
+colnames(RECAP_PREDS) <- c("LambdaRatio", "PredError", "Type", "Method")
+RECAP_PREDS$LambdaRatio <- as.numeric(as.character(RECAP_PREDS$LambdaRatio))
 RECAP_PREDS$PredError <- as.numeric(as.character(RECAP_PREDS$PredError))
-levels(RECAP_PREDS$Method) = c("Ridge-AdaLasso", "Lasso", "1-step-Laaasso") #"OLS-AdaLasso", 
-RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(2, 3, 1)]) #[c(3, 4, 1, 2)]
+if (p>=(ntrain/2)) 
+  {
+    levels(RECAP_PREDS$Method) = c("ridge-adaptive-lasso", "lasso", "1-step-lasso")
+    RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(2, 3, 1)]) #[c(3, 4, 1, 2)]
+  }else{
+    levels(RECAP_PREDS$Method) = c("ols-adaptive-lasso", "ridge-adaptive-lasso", "lasso", "1-step-lasso")
+    RECAP_PREDS$Method <- factor(RECAP_PREDS$Method, levels= levels(RECAP_PREDS$Method)[c(3, 1, 4, 2)]) #[c(3, 4, 1, 2)]
+  } #, 
 
 
-DataMins    <- RECAP_PREDS %>% group_by(Method, Type) %>% summarise( LambdaMin=Lambda[which.min(PredError)])
 
+DataMins    <- RECAP_PREDS %>% group_by(Method, Type) %>% summarise( LambdaMin = LambdaRatio[which.min(PredError)])
+PredMins    <- sapply(1:nrow(DataMins), function(i) {RECAP_PREDS$PredError[RECAP_PREDS$Type=="Test" & RECAP_PREDS$Method == DataMins$Method[i] &  RECAP_PREDS$LambdaRatio== DataMins$LambdaMin[i]]})
 
-ggplot(data=RECAP_PREDS , aes(x=Lambda, y=PredError, colour=Type)) + geom_line() +  #%>% filter(Method != "Ridge-AdaLasso")
-  facet_wrap(~Method, ncol=4, scales="free") + scale_x_log10() + #ylim(0.95*min(RECAP_PREDS$PredError), 2) + 
+DataMins <- bind_cols(DataMins, Pred=PredMins)
+
+NCOLO <- ifelse(p>=(ntrain/2), 3, 2)
+
+#options(scipen=100)
+  
+ggplot(data=RECAP_PREDS , aes(x=LambdaRatio, y=PredError, colour=Type)) + geom_line() +  #%>% filter(Method != "Ridge-AdaLasso")
+  facet_wrap(~Method, ncol=NCOLO) + scale_x_log10(labels = function(x) sprintf("%g", x)) + ylim(0.95*min(RECAP_PREDS$PredError), 2) + # , scales="free", #
+  #scale_x_continuous(labels = function(x) sprintf("%g", x)) + 
   theme(legend.position = "bottom", legend.title = element_blank(), axis.title.y = element_blank()) + 
-  geom_vline(data=DataMins, aes(xintercept=LambdaMin, colour=Type),linetype="dotted")
+  geom_vline(data=DataMins, aes(xintercept=LambdaMin, colour=Type),linetype="dotted") + 
+  geom_hline(data=DataMins, aes(yintercept=Pred, colour=Type),linetype="dotted")
 
-ggsave(file="FIGs/ForFig1_new.png", width=6, height = 3.5, units="in", dpi=300)
+
 
 
 
