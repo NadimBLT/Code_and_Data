@@ -13,7 +13,7 @@ TableALLP$Approach=factor(TableALLP$Approach,levels = c("OLS.AdaLasso-CV","OLS.A
 Approach=c("ols-ada-lasso-CV","ols-ada-lasso-nestedCV","one-step-lasso-CV","one-step-lasso-nestedCV","ridge-ada-lasso-CV","ridge-ada-lasso-nestedCV","lasso-CV")
 levels(TableALLP$Approach)  = Approach
 
-levels(TableALLP$Criterion) = c("Signed Support Recovery", "Pred.Error")        
+levels(TableALLP$Criterion) = c("Signed Support Recovery", "Prediction Error")        
 
 Col=c("darkgoldenrod4","darkgoldenrod1","brown4","brown1","chartreuse4","chartreuse1","blue")
 
@@ -62,7 +62,7 @@ ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach
   # scale_y_continuous(name="Mesure") + 
   #scale_x_continuous(breaks = c(0.25,0.5,0.75)) + 
   guides(linetype = guide_legend(order = 1), color = guide_legend(order = 2))+
-  xlab("Signal strength")
+  xlab("Signal strength") +
   theme( axis.text.x = element_text(hjust = 0.4),
          #axis.text.x=element_blank(),
          # axis.title.x=element_blank(),
@@ -76,4 +76,4 @@ ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach
          panel.background = element_rect(fill = "white",color = "grey50", size = 0.1),
          strip.background = element_rect(colour = "grey50", fill = "white",size = 0.1)) 
 
-ggsave(file=paste0("FIGs/ResSimul-", format(Sys.time(), "%Y-%m-%d"), ".pdf"), height=4.5, width=8, unit="in", dpi=300)
+ggsave(file=paste0("FIGs/ResSimul-", format(Sys.time(), "%Y-%m-%d"), ".pdf"), height=5.3, width=8, unit="in", dpi=300)
