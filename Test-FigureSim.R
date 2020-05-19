@@ -5,15 +5,21 @@ TableALLP=rbind(as.matrix(cbind(TableALL[,-1],"PredError")),as.matrix(cbind(Tabl
 TableALLP=as.data.frame(TableALLP)
 names(TableALLP)[1]="Value"
 names(TableALLP)[9]="Criterion"
+
 TableALLP$Approach=as.factor(paste0(TableALLP$Method,"-",TableALLP$Type))
 TableALLP$Value=as.numeric(as.character(TableALLP$Value))
 TableALLP$Approach=factor(TableALLP$Approach,levels = c("OLS.AdaLasso-CV","OLS.AdaLasso-nestedCV","One.step.Lasso-CV","One.step.Lasso-nestedCV","Ridge.AdaLasso-CV","Ridge.AdaLasso-nestedCV","Lasso-CV"))
 
-Approach=c("OLS.AdaLasso-CV","OLS.AdaLasso-nestedCV","One.step.Lasso-CV","One.step.Lasso-nestedCV","Ridge.AdaLasso-CV","Ridge.AdaLasso-nestedCV","Lasso-CV")
+Approach=c("ols-ada-lasso-CV","ols-ada-lasso-nestedCV","one-step-lasso-CV","one-step-lasso-nestedCV","ridge-ada-lasso-CV","ridge-ada-lasso-nestedCV","lasso-CV")
+levels(TableALLP$Approach)  = Approach
+
+levels(TableALLP$Criterion) = c("Signed Support Recovery", "Pred.Error")        
 
 Col=c("darkgoldenrod4","darkgoldenrod1","brown4","brown1","chartreuse4","chartreuse1","blue")
 
 names(Col)=Approach
+
+colnames(TableALLP)[5] <- "p0"
 
 
 library(ggplot2)
@@ -22,7 +28,7 @@ library(ggplot2)
 ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach))+
   stat_summary(fun.y="mean",geom = "line",size=0.5,linetype = 1) +
   stat_summary(fun.y="mean",geom = "point",size=1.5) +
-  facet_grid(n*Criterion ~  s0*p   ,scales = "free")+
+  facet_grid(Criterion ~  p0*p   ,scales = "free")+
   scale_color_manual(values = Col,name=" ")+
   # scale_y_continuous(name="Mesure") + 
   #scale_x_continuous(breaks = c(0.25,0.5,0.75)) + 
@@ -51,11 +57,12 @@ ggplot(data = TableALLP,mapping = aes(signal,Value,color=Approach,group=Approach
   stat_summary(fun.y="mean",geom = "point",size=1.5) +
   stat_summary(fun.y="Inf_95",geom = "line",alpha=0.9,linetype=2,size=0.25) +
   stat_summary(fun.y="Sup_95",geom = "line",alpha=0.9,linetype=2,size=0.25) +
-  facet_grid(Criterion ~  p*s0   ,scales = "free", labeller = "label_both")+
+  facet_grid(Criterion ~  p+p0   ,scales = "free", labeller = labeller(p=label_both, p0=label_both, Criterion=label_value)) +
   scale_color_manual(values = Col,name=" ")+
   # scale_y_continuous(name="Mesure") + 
   #scale_x_continuous(breaks = c(0.25,0.5,0.75)) + 
   guides(linetype = guide_legend(order = 1), color = guide_legend(order = 2))+
+  xlab("Signal strength")
   theme( axis.text.x = element_text(hjust = 0.4),
          #axis.text.x=element_blank(),
          # axis.title.x=element_blank(),

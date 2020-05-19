@@ -7,7 +7,7 @@
 
 
 
-adap.glmnet <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=NULL, nfolds=10, family="gaussian", penalty.factor=rep(1,ncol(x))){
+cv.adaptive.lasso <- function(x, y, adap=TRUE, alpha.weights=1, eps=0, nested.foldid=NULL, nfolds=10, family="gaussian", penalty.factor=rep(1,ncol(x))){
   
   if (adap==FALSE) {# standard Lasso
     modstep1=nested.cvglmnet(nested.cv=adap,alpha.weights=1,nested.foldid=nested.foldid,x=x,y=y,family=family,penalty.factor=penalty.factor)

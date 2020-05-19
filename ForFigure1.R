@@ -50,12 +50,12 @@ for (adap in c(FALSE,TRUE)) {
 if (adap==TRUE){
   for (alpha.weights in valpha.weights) {
     
-    mod=adap.glmnet(adap=adap,alpha.weights=alpha.weights,eps=eps,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
+    mod=cv.adaptive.lasso(adap=adap,alpha.weights=alpha.weights,eps=eps,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
     
     eval(parse(text=paste0("res$",names(which(code.meth[1,]==adap & code.meth[2,]==alpha.weights)),"=mod")))}
 }else{
   
-  mod=adap.glmnet(adap=adap,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
+  mod=cv.adaptive.lasso(adap=adap,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
   
   res$Lasso=mod}
 }
