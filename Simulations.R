@@ -98,7 +98,7 @@ for(n in 1:length(ntrain)){
               }
          }
           
-        evaluation <- data.frame(evaluation,p=p,s0=s0,signal=signal,n=ntrain[n],sim=sim)
+        evaluation <- data.frame(evaluation,eps= eps,p=p,s0=s0,signal=signal,n=ntrain[n],sim=sim)
          
         # to save all : 
         
