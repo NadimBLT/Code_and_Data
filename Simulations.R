@@ -22,14 +22,14 @@ Eval <- function(beta.star,beta.hat,intercept.hat,x,y){
 }
 
 #settings
-
+NCores  = 50 # number of cores (used for the parallel computation below)
 vsim    = 1:50
 vp      = c(100,500,1000)
 vsignal = c(0.25,0.5,1,1.5)
 vs0     = c(10, 50)
-eps     = 1e-4
+veps    = c(1e-2, 1e-4, 1e-6, 0)
 ntrain  = c(1000)
-ntest   = ntrain*10
+ntest   = 10000
 
 
 code.meth=rbind(c(FALSE,rep(TRUE,3)),c(NA,1,0,99))
@@ -37,7 +37,7 @@ colnames(code.meth)=c("Lasso","One.step.Lasso","Ridge.AdaLasso","OLS.AdaLasso")
 rownames(code.meth)=c("adap","alpha.weights")
 
 TableALL=NULL
-
+for (eps in veps){
 for(n in 1:length(ntrain)){
   for(p in vp){
     for(s0 in vs0){
@@ -57,7 +57,7 @@ for(n in 1:length(ntrain)){
           beta[sample(1:p,s0)]= (2*rbinom(n = s0,size = 1,prob = 0.5)-1)*signal
 
           y=x%*%beta+rnorm(ntot,0,1)
-          
+         
           xtrain=x[1:ntrain[n],]
           ytrain=y[1:ntrain[n]]
           
@@ -71,7 +71,7 @@ for(n in 1:length(ntrain)){
             if (adap==TRUE){
             for (alpha.weights in valpha.weights) {
             
-             mod=cv.adaptive.lasso(adap=adap,alpha.weights=alpha.weights,eps=eps,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
+             mod=adap.glmnet(adap=adap,alpha.weights=alpha.weights,eps=eps,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
              
              # to save all :
              ## eval(parse(text=paste0("res$",names(which(code.meth[1,]==adap & code.meth[2,]==alpha.weights)),"=mod")))
@@ -87,7 +87,7 @@ for(n in 1:length(ntrain)){
               
               }else{
               
-              mod=cv.adaptive.lasso(adap=adap,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
+              mod=adap.glmnet(adap=adap,x=xtrain,y=ytrain,family="gaussian")#,alpha =1, intercept = TRUE)
               
               # to save all
               ## res$Lasso=mod
@@ -98,7 +98,7 @@ for(n in 1:length(ntrain)){
               }
          }
           
-        evaluation <- data.frame(evaluation,eps= eps,p=p,s0=s0,signal=signal,n=ntrain[n],sim=sim)
+        evaluation <- data.frame(evaluation,eps= eps, p=p,s0=s0,signal=signal,n=ntrain[n],sim=sim)
          
         # to save all : 
         
@@ -118,19 +118,19 @@ for(n in 1:length(ntrain)){
         
         }
         
-       Res=mclapply(vsim,FUN = funparall,mc.cores = 50)
+       Res=mclapply(vsim,FUN = funparall,mc.cores = NCores)
        
        Table <- NULL
        for(i in 1:length(vsim)){Table=rbind(Table,Res[[i]])}
         
        #back up: record a table for each combination of p*s0*n*signal
-        save(Table,file = paste0("RES/ntrain-",ntrain[n],"-ntest-",ntest[n],"-nvar-",p,"-sparsity-",s0,"-signal-",signal,"AllSim.RData"))
+        save(Table,file = paste0("RES/ntrain-",ntrain[n],"-ntest-",ntest[n],"-eps-", eps, "-nvar-",p,"-sparsity-",s0,"-signal-",signal,"AllSim.RData"))
        
        TableALL=rbind(TableALL,Table)
       }
     }
   }
 }
-
+}
 save(TableALL,file = "RES/TableALL.Rdata")
 
