@@ -237,7 +237,7 @@ for (rho in rho.seq) {
 
 # save results
 
-save(res.table,file = "simulation/intermediate_results/res.table1.Rdata")
+save(res.table,file = "simulation/intermediate_results/res.table.Rdata")
 
 
 ###################
