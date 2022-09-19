@@ -237,7 +237,8 @@ for (rho in rho.seq) {
 
 # save results
 
-save(res.table,file = "simulation/intermediate_results/res.table.Rdata")
+if(!file.exists("simulation/intermediate_results/")){dir.create("simulation/intermediate_results")}
+saveRDS(res.table,file = "simulation/intermediate_results/res_table.rds")
 
 
 ###################
