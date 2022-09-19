@@ -56,10 +56,11 @@ evaluation <- function (beta.star, beta.hat, intercept.hat, x, y) {
   beta.hat[which(beta.hat<0)]   <- -1
   beta.hat[which(beta.hat>0)]   <-  1
   
-  sACC  <- length(which(beta.hat == beta.star)) / length(beta.star)
+  sACC  <- length(which(beta.hat == beta.star)) / length(beta.star) -
+    length(which(beta.hat * beta.star == -1)) / length(beta.star)
   
   vec <- c(sACC, precision, recall, pred.error)
-  names(vec) <- c("sACC","Precision","Recall","Pred Error")
+  names(vec) <- c("sACC", "Precision", "Recall", "Pred Error")
   
   return(vec)
 }
