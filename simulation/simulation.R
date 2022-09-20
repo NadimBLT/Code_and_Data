@@ -23,9 +23,9 @@ library(Matrix)
 library(parallel)
 library(MASS)
 
-source("functions/ada.lasso.nested.cv.R")
-source("functions/ada.lasso.naive.cv.R")
-source("functions/evaluation.R")
+source("../functions/ada.lasso.nested.cv.R")
+source("../functions/ada.lasso.naive.cv.R")
+source("../functions/evaluation.R")
 
 
 ####################
@@ -237,10 +237,10 @@ for (rho in rho.seq) {
 
 # save results
 
-if ( ! file.exists("simulation/intermediate_results/")) {
-  dir.create("simulation/intermediate_results")
+if ( ! file.exists("intermediate_results/")) {
+  dir.create("intermediate_results")
 }
-saveRDS(res.table, file = "simulation/intermediate_results/res_table.rds")
+saveRDS(res.table, file = "intermediate_results/res_table.rds")
 
 
 ###################
